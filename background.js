@@ -32,7 +32,11 @@ async function generateMessage({ name, firstName, title, company, about }) {
       },
       body: JSON.stringify({
         model: MODEL,
-        max_tokens: 300,
+        // gpt-oss bir reasoning modeli; düşünme payı da üretim limitinden yiyebilir.
+        // 'low' gpt-oss için izin verilen en düşük seviye (reasoning tamamen kapatılamıyor).
+        reasoning_effort: 'low',
+        include_reasoning: false,
+        max_completion_tokens: 1024,
         messages: [
           {
             role: 'system',
@@ -64,7 +68,16 @@ Requirements:
       return { error: 'API Hatası: ' + result.error.message };
     }
 
-    return { message: result.choices[0].message.content };
+    const choice = result.choices?.[0];
+    const content = choice?.message?.content?.trim();
+    if (!content) {
+      if (choice?.finish_reason === 'length') {
+        return { error: 'The model ran out of tokens before answering. Try again.' };
+      }
+      return { error: 'API Hatası: boş yanıt' };
+    }
+
+    return { message: content };
   } catch (err) {
     return { error: 'Bağlantı hatası: ' + err.message };
   }
