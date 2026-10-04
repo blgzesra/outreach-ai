@@ -41,11 +41,13 @@ function showModal(message) {
       <strong style="font-size:15px;color:#0a66c2">OutreachAI</strong>
       <span id="outreach-close" style="cursor:pointer;font-size:20px;color:#888;line-height:1">&times;</span>
     </div>
-    <textarea id="outreach-text" style="width:100%;height:130px;border:1px solid #ddd;border-radius:8px;padding:10px;font-size:13px;resize:vertical;box-sizing:border-box;line-height:1.5">${message}</textarea>
+    <textarea id="outreach-text" style="width:100%;height:130px;border:1px solid #ddd;border-radius:8px;padding:10px;font-size:13px;resize:vertical;box-sizing:border-box;line-height:1.5"></textarea>
     <button id="outreach-copy" style="width:100%;margin-top:10px;padding:9px;background:#0a66c2;color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">
       Copy
     </button>
   `;
+  // Model çıktısı ve hata mesajları HTML olarak değil, düz metin olarak eklenir (XSS önlemi)
+  modal.querySelector('#outreach-text').value = message;
   document.body.appendChild(modal);
   document.getElementById('outreach-close').onclick = () => modal.remove();
   document.getElementById('outreach-copy').onclick = () => {
