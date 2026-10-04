@@ -2,14 +2,14 @@ document.getElementById('save').addEventListener('click', () => {
   const key = document.getElementById('apiKey').value.trim();
 if (!key.startsWith('gsk_')) {
   document.getElementById('status').style.color = 'red';
-  document.getElementById('status').textContent = 'Geçersiz key formatı';
+  document.getElementById('status').textContent = 'Invalid key format (must start with gsk_)';
   return;
 }
 
   chrome.storage.local.set({ groqKey: key }, () => {
     chrome.storage.local.remove('anthropicKey');
     document.getElementById('status').style.color = 'green';
-    document.getElementById('status').textContent = 'Kaydedildi!';
+    document.getElementById('status').textContent = 'Saved!';
   });
 });
 

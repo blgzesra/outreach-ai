@@ -23,7 +23,7 @@ function getApiKey() {
 async function generateMessage({ name, firstName, title, company, about }) {
   const apiKey = await getApiKey();
   if (!apiKey) {
-    return { error: 'Lütfen önce uzantı popup\'undan API key girin.' };
+    return { error: 'Please enter your Groq API key in the extension popup first.' };
   }
 
   let res;

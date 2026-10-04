@@ -58,7 +58,7 @@ function showModal(message) {
 }
 
 function showLoading() {
-  showModal('Mesaj yazılıyor...');
+  showModal('Writing message...');
   document.getElementById('outreach-text').disabled = true;
   document.getElementById('outreach-copy').disabled = true;
 }
@@ -80,7 +80,7 @@ async function generateMessage() {
     });
   } catch (err) {
     // Uzantı yeniden yüklendiyse eski content script'in bağlantısı kopar
-    showModal('Uzantı güncellendi, lütfen sayfayı yenileyin.');
+    showModal('The extension was updated. Please reload the page.');
   }
 }
 
