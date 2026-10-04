@@ -1,6 +1,6 @@
 function getProfileData() {
   // Sayfa başlığından ismi al, bildirim sayılarını temizle
-  // Örnek: "Elon Musk (23) | LinkedIn" → "Elon Musk"
+  // Örnek: "Jane Doe (23) | LinkedIn" → "Jane Doe"
   const rawTitle = document.title.split('|')[0].trim();
   const titleName = rawTitle.replace(/\(\d+\)/g, '').trim();
   
@@ -52,8 +52,8 @@ function showModal(message) {
   document.getElementById('outreach-close').onclick = () => modal.remove();
   document.getElementById('outreach-copy').onclick = () => {
     navigator.clipboard.writeText(document.getElementById('outreach-text').value);
-    document.getElementById('outreach-copy').textContent = 'Kopyalandı!';
-    setTimeout(() => { document.getElementById('outreach-copy').textContent = 'Kopyala'; }, 2000);
+    document.getElementById('outreach-copy').textContent = 'Copied!';
+    setTimeout(() => { document.getElementById('outreach-copy').textContent = 'Copy'; }, 2000);
   };
 }
 
@@ -107,11 +107,11 @@ Company: ${company}
 About: ${about}
 
 Requirements:
-- Start directly with the greeting: "Hi ${firstName}," (English)
+- Write the entire message in the language of their profile
+- Start directly with a greeting to ${firstName} in that same language (e.g. "Hi ${firstName}," for English)
 - Maximum 3 sentences
 - Reference their specific role or company
-- Friendly and professional tone
-- Match the language of their profile`
+- Friendly and professional tone`
             }
           ]
         })
