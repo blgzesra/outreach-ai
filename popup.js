@@ -6,14 +6,22 @@ if (!key.startsWith('gsk_')) {
   return;
 }
 
-  chrome.storage.local.set({ anthropicKey: key }, () => {
+  chrome.storage.local.set({ groqKey: key }, () => {
+    chrome.storage.local.remove('anthropicKey');
     document.getElementById('status').style.color = 'green';
     document.getElementById('status').textContent = 'Kaydedildi!';
   });
 });
 
-chrome.storage.local.get('anthropicKey', (data) => {
-  if (data.anthropicKey) {
-    document.getElementById('apiKey').value = data.anthropicKey;
+// Eski sürüm anahtarı 'anthropicKey' adıyla kaydediyordu; varsa 'groqKey'e taşı
+chrome.storage.local.get(['groqKey', 'anthropicKey'], (data) => {
+  const key = data.groqKey || data.anthropicKey;
+  if (!data.groqKey && data.anthropicKey) {
+    chrome.storage.local.set({ groqKey: data.anthropicKey }, () => {
+      chrome.storage.local.remove('anthropicKey');
+    });
+  }
+  if (key) {
+    document.getElementById('apiKey').value = key;
   }
 });

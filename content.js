@@ -68,8 +68,16 @@ async function generateMessage() {
   await new Promise(r => setTimeout(r, 300));
   showLoading();
 
-  chrome.storage.local.get('anthropicKey', async (data) => {
-    if (!data.anthropicKey) {
+  chrome.storage.local.get(['groqKey', 'anthropicKey'], async (data) => {
+    // Eski sürüm anahtarı 'anthropicKey' adıyla kaydediyordu; varsa 'groqKey'e taşı
+    const apiKey = data.groqKey || data.anthropicKey;
+    if (!data.groqKey && data.anthropicKey) {
+      chrome.storage.local.set({ groqKey: data.anthropicKey }, () => {
+        chrome.storage.local.remove('anthropicKey');
+      });
+    }
+
+    if (!apiKey) {
       showModal('Lütfen önce uzantı popup\'undan API key girin.');
       return;
     }
@@ -78,7 +86,7 @@ async function generateMessage() {
       const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
         headers: {
-          'Authorization': 'Bearer ' + data.anthropicKey,
+          'Authorization': 'Bearer ' + apiKey,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
