@@ -1,5 +1,8 @@
 // Groq API isteği burada (service worker) yapılır; API anahtarı LinkedIn sayfasına hiç gönderilmez.
 
+// Groq modelleri dönemsel olarak kaldırır: https://console.groq.com/docs/deprecations
+const MODEL = 'openai/gpt-oss-120b';
+
 function getApiKey() {
   return new Promise((resolve) => {
     chrome.storage.local.get(['groqKey', 'anthropicKey'], (data) => {
@@ -28,7 +31,7 @@ async function generateMessage({ name, firstName, title, company, about }) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
+        model: MODEL,
         max_tokens: 300,
         messages: [
           {
