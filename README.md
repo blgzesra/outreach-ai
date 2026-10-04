@@ -35,8 +35,10 @@ A Chrome extension (Manifest V3) that drafts a personalized LinkedIn connection 
 | Permission | Why |
 |---|---|
 | `storage` | Save your Groq API key locally |
-| `activeTab` | Declared in the manifest |
 | `https://www.linkedin.com/*` | Run on LinkedIn profile pages |
+| `https://api.groq.com/*` | Let the background service worker call the Groq API |
+
+The content script only reads profile data and shows the result. The Groq request (including your API key) is made by the background service worker, so the key is never exposed to the LinkedIn page.
 
 ## Privacy
 

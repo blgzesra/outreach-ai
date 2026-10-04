@@ -3,8 +3,14 @@
   "name": "OutreachAI",
   "version": "1.0",
   "description": "LinkedIn profillerinden tek tıkla AI mesaj üret",
-  "permissions": ["activeTab", "storage"],
-  "host_permissions": ["https://www.linkedin.com/*"],
+  "permissions": ["storage"],
+  "host_permissions": [
+    "https://www.linkedin.com/*",
+    "https://api.groq.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
   "content_scripts": [{
     "matches": ["https://www.linkedin.com/in/*"],
     "js": ["content.js"]

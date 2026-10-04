@@ -64,71 +64,23 @@ function showLoading() {
 }
 
 async function generateMessage() {
-  const { name, firstName, title, company, about } = getProfileData();
+  const profile = getProfileData();
   await new Promise(r => setTimeout(r, 300));
   showLoading();
 
-  chrome.storage.local.get(['groqKey', 'anthropicKey'], async (data) => {
-    // Eski sürüm anahtarı 'anthropicKey' adıyla kaydediyordu; varsa 'groqKey'e taşı
-    const apiKey = data.groqKey || data.anthropicKey;
-    if (!data.groqKey && data.anthropicKey) {
-      chrome.storage.local.set({ groqKey: data.anthropicKey }, () => {
-        chrome.storage.local.remove('anthropicKey');
-      });
-    }
-
-    if (!apiKey) {
-      showModal('Lütfen önce uzantı popup\'undan API key girin.');
-      return;
-    }
-
-    try {
-      const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': 'Bearer ' + apiKey,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          model: 'llama-3.3-70b-versatile',
-          max_tokens: 300,
-          messages: [
-            {
-              role: 'system',
-              content: 'You write LinkedIn connection request messages. Output ONLY the message text itself — no explanations, no preamble, no meta-commentary, no quotation marks around the message. Just the message.'
-            },
-            {
-              role: 'user',
-              content: `Write a short, personalized LinkedIn connection request for this person:
-Name: ${name}
-First name: ${firstName}
-Position: ${title}
-Company: ${company}
-About: ${about}
-
-Requirements:
-- Write the entire message in the language of their profile
-- Start directly with a greeting to ${firstName} in that same language (e.g. "Hi ${firstName}," for English)
-- Maximum 3 sentences
-- Reference their specific role or company
-- Friendly and professional tone`
-            }
-          ]
-        })
-      });
-
-      const result = await res.json();
-
-      if (result.error) {
-        showModal('API Hatası: ' + result.error.message);
+  // API isteği background.js (service worker) içinde yapılır; anahtar bu sayfaya gelmez
+  try {
+    chrome.runtime.sendMessage({ type: 'generate', profile }, (response) => {
+      if (chrome.runtime.lastError || !response) {
+        showModal('Bağlantı hatası: ' + (chrome.runtime.lastError?.message || 'yanıt alınamadı'));
         return;
       }
-
-      showModal(result.choices[0].message.content);
-    } catch (err) {
-      showModal('Bağlantı hatası: ' + err.message);
-    }
-  });
+      showModal(response.error || response.message);
+    });
+  } catch (err) {
+    // Uzantı yeniden yüklendiyse eski content script'in bağlantısı kopar
+    showModal('Uzantı güncellendi, lütfen sayfayı yenileyin.');
+  }
 }
 
 function addButton() {
