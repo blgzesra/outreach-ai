@@ -3,6 +3,9 @@
 // Groq modelleri dönemsel olarak kaldırır: https://console.groq.com/docs/deprecations
 const MODEL = 'openai/gpt-oss-120b';
 
+const API_ERROR = 'The AI service returned an error. Please try again later.';
+const NETWORK_ERROR = 'Could not reach the AI service. Check your connection and try again.';
+
 function getApiKey() {
   return new Promise((resolve) => {
     chrome.storage.local.get(['groqKey', 'anthropicKey'], (data) => {
@@ -23,8 +26,9 @@ async function generateMessage({ name, firstName, title, company, about }) {
     return { error: 'Lütfen önce uzantı popup\'undan API key girin.' };
   }
 
+  let res;
   try {
-    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': 'Bearer ' + apiKey,
@@ -61,26 +65,36 @@ Requirements:
         ]
       })
     });
-
-    const result = await res.json();
-
-    if (result.error) {
-      return { error: 'API Hatası: ' + result.error.message };
-    }
-
-    const choice = result.choices?.[0];
-    const content = choice?.message?.content?.trim();
-    if (!content) {
-      if (choice?.finish_reason === 'length') {
-        return { error: 'The model ran out of tokens before answering. Try again.' };
-      }
-      return { error: 'API Hatası: boş yanıt' };
-    }
-
-    return { message: content };
   } catch (err) {
-    return { error: 'Bağlantı hatası: ' + err.message };
+    console.error('[OutreachAI] Network error:', err);
+    return { error: NETWORK_ERROR };
   }
+
+  // Ham hata yalnızca service worker konsoluna yazılır; arayüzde kısa mesaj gösterilir
+  let result;
+  try {
+    result = await res.json();
+  } catch (err) {
+    console.error('[OutreachAI] Invalid JSON from Groq:', res.status, err);
+    return { error: API_ERROR };
+  }
+
+  if (!res.ok || result.error) {
+    console.error('[OutreachAI] Groq API error:', res.status, result.error || result);
+    return { error: API_ERROR };
+  }
+
+  const choice = result.choices?.[0];
+  const content = choice?.message?.content?.trim();
+  if (!content) {
+    console.error('[OutreachAI] Empty response from Groq:', result);
+    if (choice?.finish_reason === 'length') {
+      return { error: 'The model ran out of tokens before answering. Try again.' };
+    }
+    return { error: API_ERROR };
+  }
+
+  return { message: content };
 }
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {

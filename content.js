@@ -72,7 +72,8 @@ async function generateMessage() {
   try {
     chrome.runtime.sendMessage({ type: 'generate', profile }, (response) => {
       if (chrome.runtime.lastError || !response) {
-        showModal('Bağlantı hatası: ' + (chrome.runtime.lastError?.message || 'yanıt alınamadı'));
+        console.error('[OutreachAI] No response from background:', chrome.runtime.lastError);
+        showModal('The AI service returned an error. Please try again later.');
         return;
       }
       showModal(response.error || response.message);
