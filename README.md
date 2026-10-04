@@ -6,7 +6,7 @@ A Chrome extension (Manifest V3) that drafts a personalized LinkedIn connection 
 
 - Adds a **Write with AI** button to LinkedIn profile pages (`https://www.linkedin.com/in/*`).
 - When clicked, reads the person's **name, headline/title, company and About** section from the page.
-- Sends that information to the **Groq API** using the `llama-3.3-70b-versatile` model and generates **one** personalized message (max. 3 sentences, written in the language of the profile).
+- Sends that information to the **Groq API** using the `openai/gpt-oss-120b` model (with low reasoning effort) and generates **one** personalized message (max. 3 sentences, written in the language of the profile).
 - Shows the message in an **editable text area**, so you can adjust it before using it.
 - **Copy** button copies the (edited) text to the clipboard in one click.
 
@@ -21,7 +21,7 @@ A Chrome extension (Manifest V3) that drafts a personalized LinkedIn connection 
 
 1. Get a Groq API key from [console.groq.com/keys](https://console.groq.com/keys).
 2. Click the OutreachAI icon in the Chrome toolbar.
-3. Paste your key (it must start with `gsk_`) and click **Kaydet** (Save). The popup UI is in Turkish.
+3. Paste your key (it must start with `gsk_`) and click **Save**.
 4. The key is stored in `chrome.storage.local` in your browser.
 
 ## Usage
@@ -58,6 +58,7 @@ The content script only reads profile data and shows the result. The Groq reques
 - The only setting is the API key (no tone, length or language options).
 - LinkedIn is a single-page app: if you navigate to a profile from another LinkedIn page (e.g. the feed), the button may not appear until you reload the page.
 - Not published on the Chrome Web Store.
+- Groq retires models periodically; if you see a 'model does not exist' error, update the `MODEL` constant in `background.js`. The popup shows a short generic error; the full API error is logged in the service worker console (`chrome://extensions` → OutreachAI → **Service worker**).
 
 ## Screenshots
 
